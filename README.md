@@ -15,11 +15,12 @@ Kanban task board (pet project).
 ```bash
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py runserver
+python manage.py runserver 127.0.0.1:8001
 
 cd frontend
 npm install
 npm run dev
 ```
 
-Open http://localhost:5175
+Open http://127.0.0.1:5175  
+Frontend proxies `/api` → `http://127.0.0.1:8001`.
