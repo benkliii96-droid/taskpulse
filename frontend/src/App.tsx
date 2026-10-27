@@ -17,10 +17,10 @@ type Board = {
 }
 
 const api = axios.create({ baseURL: '/api' })
-const columns: Array<{ key: keyof Board; title: string }> = [
-  { key: 'todo', title: 'To do' },
-  { key: 'doing', title: 'Doing' },
-  { key: 'done', title: 'Done' },
+const columns: Array<{ key: keyof Board; title: string; tone: string }> = [
+  { key: 'todo', title: 'TO DO', tone: 'pink' },
+  { key: 'doing', title: 'DOING', tone: 'cyan' },
+  { key: 'done', title: 'DONE', tone: 'lime' },
 ]
 
 function App() {
@@ -58,66 +58,59 @@ function App() {
   }
 
   return (
-    <div className="shell">
-      <header>
-        <h1>TaskPulse</h1>
-        <p className="muted">Kanban-доска задач · Django + React</p>
+    <div className="stage">
+      <header className="banner">
+        <h1>TASK<br />PULSE</h1>
+        <p>Жёсткий канбан без воды. Кидай задачу — двигай статус.</p>
       </header>
 
-      <form className="card" onSubmit={createTask}>
-        <h2>Новая задача</h2>
-        <div className="row">
-          <label>
-            Заголовок
-            <input value={title} onChange={(e) => setTitle(e.target.value)} required />
-          </label>
-          <label>
-            Приоритет
-            <select value={priority} onChange={(e) => setPriority(Number(e.target.value))}>
-              <option value={1}>Высокий</option>
-              <option value={2}>Средний</option>
-              <option value={3}>Низкий</option>
-            </select>
-          </label>
+      <form className="composer" onSubmit={createTask}>
+        <input
+          className="title-input"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Название задачи"
+          required
+        />
+        <input
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Короткое описание"
+        />
+        <div className="composer-row">
+          <select value={priority} onChange={(e) => setPriority(Number(e.target.value))}>
+            <option value={1}>P1 · срочно</option>
+            <option value={2}>P2 · обычно</option>
+            <option value={3}>P3 · потом</option>
+          </select>
+          <button type="submit">ADD TASK</button>
         </div>
-        <label>
-          Описание
-          <input value={description} onChange={(e) => setDescription(e.target.value)} />
-        </label>
-        <button type="submit">Добавить</button>
       </form>
 
       <div className="board">
         {columns.map((col) => (
-          <section key={col.key} className="column">
+          <section key={col.key} className={`col ${col.tone}`}>
             <h2>
-              {col.title} <span>{board[col.key].length}</span>
+              {col.title}
+              <span>{board[col.key].length}</span>
             </h2>
             {board[col.key].map((task) => (
-              <article key={task.id} className="task">
-                <div className="task-top">
+              <article key={task.id} className="card">
+                <div className="card-top">
                   <strong>{task.title}</strong>
-                  <span className={`prio p${task.priority}`}>P{task.priority}</span>
+                  <span className={`p p${task.priority}`}>P{task.priority}</span>
                 </div>
                 {task.description && <p>{task.description}</p>}
-                <div className="actions">
-                  {col.key !== 'todo' && (
-                    <button type="button" onClick={() => moveTask(task, 'todo')}>
-                      To do
-                    </button>
-                  )}
-                  {col.key !== 'doing' && (
-                    <button type="button" onClick={() => moveTask(task, 'doing')}>
-                      Doing
-                    </button>
-                  )}
-                  {col.key !== 'done' && (
-                    <button type="button" onClick={() => moveTask(task, 'done')}>
-                      Done
-                    </button>
-                  )}
-                  <button type="button" className="danger" onClick={() => removeTask(task.id)}>
-                    ✕
+                <div className="moves">
+                  {columns
+                    .filter((c) => c.key !== col.key)
+                    .map((c) => (
+                      <button key={c.key} type="button" onClick={() => moveTask(task, c.key)}>
+                        → {c.title}
+                      </button>
+                    ))}
+                  <button type="button" className="x" onClick={() => removeTask(task.id)}>
+                    удалить
                   </button>
                 </div>
               </article>
